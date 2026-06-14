@@ -1,5 +1,5 @@
 ---
-name: bug-hunter-GITHUBID
+name: bug-hunter-Brian777cool
 description: Audit a Python function for bugs against its task description, emit a structured bug report per the AIASE 2026 Pairwise Bug Hunter contract.
 version: 0.1.0
 metadata:

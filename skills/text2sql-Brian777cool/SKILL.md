@@ -1,5 +1,5 @@
 ---
-name: text2sql-GITHUBID
+name: text2sql-Brian777cool
 description: Convert a natural-language question + SQLite schema into a verified read-only SQL query. AIASE 2026 Basic Track.
 version: 0.1.0
 metadata:
@@ -10,7 +10,7 @@ metadata:
 
 # Text2SQL Skill (Basic Track)
 
-> **TODO for student**: rename folder `text2sql-GITHUBID` → `text2sql-<your_github_id>`,
+> **TODO for student**: rename folder `text2sql-Brian777cool` → `text2sql-<your_github_id>`,
 > and change `name:` above to match. Then fill in the procedure / strengthen the harness.
 
 ## When to Use

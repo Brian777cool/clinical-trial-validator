@@ -1,5 +1,5 @@
 ---
-name: code-author-GITHUBID
+name: code-author-Brian777cool
 description: Implement a Python function from a natural-language task description, self-test, and emit the AIASE 2026 Pairwise Code Author contract.
 version: 0.1.0
 metadata:
