@@ -1,57 +1,33 @@
 ---
 name: bug-hunter-Brian777cool
-description: Audit a Python function for bugs against its task description, emit a structured bug report per the AIASE 2026 Pairwise Bug Hunter contract.
-version: 0.1.0
+description: Analyzes Python code to identify syntax, logical, and security bugs.
+version: 1.0.0
 metadata:
   hermes:
-    tags: [code, audit, aiase-2026]
-    category: code
+    tags: [debugging, python, analysis]
+    category: engineering
 ---
 
-# Bug Hunter Skill (Pairwise Track)
-
-> **TODO for student**: rename folder + frontmatter `name` to include your github_id;
-> fill in the LLM-side audit in the Procedure; strengthen the harness in `scripts/`.
+# Bug Hunter Skill
 
 ## When to Use
-
-When the user sends a JSON payload with `code` (Python source), `task_description`, and `task_id`. The skill must produce a structured bug report whose `bugs[]` matches actual bugs (Jaccard-ish line+type overlap), with low false-positive rate on clean code.
-
-Trigger example:
-
-```
-/bug-hunter-<your_github_id> {"task_id":"task_042",
-  "code":"def merge_intervals(intervals): ...",
-  "task_description":"Merge overlapping intervals, empty input returns []."}
-```
+當接收到一段 Python 程式碼，並被要求尋找其中的潛在錯誤（Bug）、漏洞或效能問題時觸發。
 
 ## Procedure
-
-1. **Parse** the payload. Read `code` line-by-line (1-indexed); read the task description for the spec.
-2. **Probe** the code by running `python scripts/analyze.py` with the code + task description + entry function name. The script:
-   - parses the AST to extract function name + parameters,
-   - runs the function on a battery of deterministic edge inputs (empty, single-element, extremes),
-   - returns per-input crash / mismatch / OK plus suspicious line ranges.
-3. **Review** the analyzer signals. For each suspicious line range, decide:
-   - **bug or not** (don't over-report — false positives are penalized).
-   - **type**: one of `off_by_one` / `null_deref` / `type_error` / `logic_error` / `edge_case` / `api_misuse` / `inefficient` / `unhandled_input` (see spec §2.3).
-   - **severity**: `critical` / `high` / `medium` / `low` — calibrated to "how easily triggered + how severe".
-   - **suggested_fix**: actionable, specific.
-4. **Verdict**: `clean` if no bugs found, `buggy` otherwise. If `verdict=clean`, `bugs[]` must be `[]`.
-5. **Emit** the contract by running `python scripts/run.py` with the final `{task_id, verdict, bugs, confidence}` as argv JSON. Output the resulting fenced JSON block **unchanged**.
+1. 仔細閱讀傳入的 Python 程式碼 (`source_code`)。
+2. 進行多維度的靜態審查，包含但不限於：
+   - **Syntax & Runtime Errors**: 變數未定義、IndexError 邊界錯誤、型別不匹配。
+   - **Logical Bugs**: 演算法邏輯瑕疵、無窮迴圈、不正確的條件判斷。
+   - **Security & Best Practices**: 密碼明文、未處理的 Exception、效能極差的寫法。
+3. 如果發現錯誤，請詳細說明錯誤原因與發生的行數。
+4. 將審查結果寫成純 JSON 格式，包含 `task_id`、`has_bug` (boolean)、與 `bug_description` 欄位，存為 `temp_bug_report.json`。
+   - 注意：`bug_description` 必須為字串，若無 bug 則填寫 "No obvious bugs found."。
+5. 執行指令：`python scripts/validator.py temp_bug_report.json`。
+6. 驗證通過後，直接將腳本輸出的 ````json 區塊完整複製，作為最終輸出。
 
 ## Pitfalls
-
-- **Over-reporting** (always reporting many bugs) destroys score — clean code FP rate is 25% of your grade.
-- **Under-reporting** (always `verdict=clean`) also destroys score — F1 on buggy code is 50%.
-- **Wrong severity calibration**: empty-input crash = `medium` (edge), wrong-answer-on-common-input = `high`/`critical`. See spec §2.3.
-- **Wrong line numbers**: 1-indexed, point at the smallest line range that contains the bug. Don't point at the function signature line for an off-by-one in the loop.
+- 產生出無效的 JSON 格式，導致後續流程崩潰。
+- 回報了錯誤的行數，或是將正確的程式碼誤判為 Bug。
 
 ## Verification
-
-The output of `scripts/run.py` is a single fenced ```json``` block with:
-
-- `task_id` (must equal input)
-- `verdict` (`"buggy"` or `"clean"`)
-- `bugs` (array of bug objects with `line_start`, `line_end`, `severity`, `type`, `description`, `suggested_fix`; **must be `[]` when verdict=clean**)
-- `confidence` (number in `[0.0, 1.0]`)
+最終輸出必須嚴格依照 `validator.py` 驗證過關後所提供的 JSON 格式輸出，確保判斷結果可被系統正確解析。

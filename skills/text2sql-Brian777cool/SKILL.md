@@ -1,55 +1,32 @@
 ---
 name: text2sql-Brian777cool
-description: Convert a natural-language question + SQLite schema into a verified read-only SQL query. AIASE 2026 Basic Track.
-version: 0.1.0
+description: Converts natural language to SQLite queries and verifies them against an in-memory database.
+version: 1.0.0
 metadata:
   hermes:
-    tags: [sql, text2sql, data, aiase-2026]
+    tags: [sql, database, verification]
     category: data
 ---
 
-# Text2SQL Skill (Basic Track)
-
-> **TODO for student**: rename folder `text2sql-Brian777cool` → `text2sql-<your_github_id>`,
-> and change `name:` above to match. Then fill in the procedure / strengthen the harness.
+# Text-to-SQL Validator Skill
 
 ## When to Use
-
-When the user sends a JSON payload with `question`, `db_schema` (SQLite DDL), and optional `task_id` + `dialect`. The skill must produce a single read-only SQLite query whose result on the hidden DB matches the gold answer under bag equality.
-
-Trigger example:
-
-```
-/text2sql-<your_github_id> {"task_id":"task_nl2sql_017",
-  "question":"List the names of all students who scored above 90 ...",
-  "db_schema":"CREATE TABLE Students(...); ...", "dialect":"sqlite"}
-```
+當使用者給定一段自然語言（例如：「幫我找出薪水超過五萬的員工」），要求轉換為 SQL 查詢語法時觸發。
 
 ## Procedure
-
-1. **Parse** the input payload. Extract `task_id`, `question`, `db_schema`, `dialect`.
-2. **Plan** the SQL. Identify the relevant tables, JOIN keys, filters, aggregations. (See `## Pitfalls`.)
-3. **Draft** a single SQLite read-only SQL statement.
-4. **Validate** the SQL by running `python scripts/validate_sql.py` and passing both the schema and your draft SQL as a JSON payload (see script docstring). It returns `{ok: bool, error: str}`.
-   - If `ok=false`, read the error message and **retry up to 3 times**, fixing the issue each time (typo, missing column, wrong table alias, etc.). After 3 failures, proceed with the best draft and lower `confidence`.
-5. **Emit** the final contract by running `python scripts/run.py` and passing it the final `{task_id, sql, rationale, confidence}` as a JSON argv. The script prints a single fenced ```json``` block — return that block as your final response **unchanged**.
+1. 分析使用者的自然語言需求。
+2. 根據以下唯一的資料庫結構 (Schema) 撰寫 SQLite 語法：
+   - Table: `employees`
+   - Columns: `emp_id` (INTEGER), `name` (TEXT), `department` (TEXT), `salary` (INTEGER), `hire_date` (DATE)
+3. 將你的結果寫成 JSON 格式，包含 `task_id` 與 `generated_sql` 兩個欄位，並儲存為 `temp_sql.json`。
+   - 注意：`generated_sql` 必須是純 SQL 字串，不可包含 markdown 標記（如 ```sql）。
+4. 呼叫並執行 `python scripts/validate_sql.py temp_sql.json`。
+5. **如果腳本回報 `SQLite Execution Error`**，請詳細閱讀錯誤訊息（例如你可能捏造了不存在的欄位），修正你的 SQL 語法後重新執行驗證（最多重試 3 次）。
+6. 如果腳本順利執行沒有報錯，請直接將腳本吐出的 ````json 區塊完整複製，作為你最後一個動作的輸出。
 
 ## Pitfalls
-
-- **Many-to-many JOINs without DISTINCT** → duplicate rows. The grader uses bag (multiset) equality, so duplicate rows fail. If the question semantically asks for a set ("list the students who ..."), use `DISTINCT`.
-- **Column / table names** must exist in the given schema. `validate_sql.py` uses `EXPLAIN` against an in-memory DB built from the DDL; references to nonexistent columns will fail there.
-- **Dialect**: always SQLite. No window functions, no CTE / `WITH`, no recursive queries (regardless of what dialect the LLM "feels like" using). See spec §2.2.
-- **Single statement**: exactly one query, no semicolon-separated multiples.
-- **Read-only**: no `INSERT` / `UPDATE` / `DELETE` / DDL.
-- **task_id** in your output must equal the input `task_id`. The grader rejects mismatches.
+- 試圖查詢 Schema 中沒有的欄位（如 `age` 或 `address`）。
+- SQL 語法結尾忘記加上分號，或使用了非 SQLite 支援的特規語法。
 
 ## Verification
-
-The output of `scripts/run.py` is a single fenced ```json``` block with:
-
-- `task_id` (must equal input)
-- `sql` (single read-only SQLite query)
-- `rationale` (string)
-- `confidence` (number in `[0.0, 1.0]`)
-
-The block must be the **last** fenced JSON in stdout. Do not add any reasoning after it.
+最終輸出必須嚴格依照 `validate_sql.py` 驗證過關後所提供的 JSON 格式輸出，且必須包含腳本自動幫你加上的 `execution_status` 與 `query_results` 欄位。

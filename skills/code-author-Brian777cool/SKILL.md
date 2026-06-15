@@ -1,58 +1,30 @@
 ---
 name: code-author-Brian777cool
-description: Implement a Python function from a natural-language task description, self-test, and emit the AIASE 2026 Pairwise Code Author contract.
-version: 0.1.0
+description: Generates robust Python code based on requirements and validates syntax via AST.
+version: 1.0.0
 metadata:
   hermes:
-    tags: [code, python, aiase-2026]
-    category: code
+    tags: [coding, python, generation]
+    category: engineering
 ---
 
-# Code Author Skill (Pairwise Track)
-
-> **TODO for student**: rename folder + frontmatter `name` to include your github_id;
-> fill in the LLM-side planning in the Procedure; strengthen the harness in `scripts/`.
+# Code Author Skill
 
 ## When to Use
-
-When the user sends a JSON payload with `task_description`, `constraints` (entry_function, max_loc, imports_forbidden), and `task_id`. The skill must produce a Python implementation that:
-
-- defines exactly the entry function named in `constraints.entry_function`,
-- does not exceed `constraints.max_loc` source lines (measured by `radon raw`),
-- does not import anything in `constraints.imports_forbidden`,
-- handles realistic edge cases (empty input, single element, extremes — see Pitfalls).
-
-Trigger example:
-
-```
-/code-author-<your_github_id> {"task_id":"task_042",
-  "task_description":"Implement merge_intervals(intervals): merge overlapping intervals, empty input returns [].",
-  "constraints":{"entry_function":"merge_intervals","max_loc":500,"imports_forbidden":["os","sys"]}}
-```
+當使用者給予程式設計需求，要求你撰寫一段 Python 程式碼時觸發。
 
 ## Procedure
-
-1. **Parse** the task description; identify inputs, outputs, edge cases, and complexity targets.
-2. **Draft** a Python implementation defining `constraints.entry_function`. Keep code idiomatic; do not over-engineer.
-3. **Self-test** by running `python scripts/selftest.py` with the candidate code + constraints + a small set of edge inputs (empty list, single element, extremes). The script returns `{passed, failed, errors, sloc, import_violations}`.
-   - If any check fails: read the error, fix the code, retry (up to 3 rounds).
-4. **Emit** the contract by running `python scripts/run.py` with the final `{task_id, code, loc, self_test_results, rationale, confidence}` as argv JSON. Output the resulting fenced JSON block **unchanged**.
+1. 仔細閱讀使用者的程式開發需求與邊界條件。
+2. 撰寫符合需求且具備良好註解的 Python 程式碼。
+3. 將結果寫成純 JSON 格式，包含 `task_id` 與 `generated_code` 兩個欄位，儲存為 `temp_code.json`。
+   - 注意：`generated_code` 必須是純字串，請正確處理換行符號 (`\n`)，**絕對不可**在字串開頭加上 ```python 等 Markdown 標記。
+4. 執行指令：`python scripts/validator.py temp_code.json`。
+5. **如果腳本回報 `Syntax Error`**，代表你生成的程式碼有縮排錯誤或語法瑕疵，請修正後重新執行驗證（最多重試 3 次）。
+6. 驗證通過後，直接將腳本輸出的 ````json 區塊完整複製，作為最終輸出。
 
 ## Pitfalls
-
-- **Missing empty-input handling** — the most common Pairwise failure. Always test `[]` / `""` / `0`.
-- **Off-by-one** in loops / slicing — test both endpoints (first, last) explicitly.
-- **Forbidden imports** — `os`, `sys`, `subprocess` etc. The harness will flag them; don't import anything not strictly needed.
-- **LoC limit** — `radon raw` counts source lines (excludes blank + pure-comment). The grader re-runs `radon` independently of your reported `loc`. Keep code lean.
-- **No network / no filesystem outside cwd** in sandbox (see spec §2.3). Don't read files, don't call APIs.
+- 忘記 `import` 必要的標準函式庫。
+- 在 `generated_code` 中混入人類自然語言的解釋，導致 AST 解析失敗。
 
 ## Verification
-
-The output of `scripts/run.py` is a single fenced ```json``` block with:
-
-- `task_id` (must equal input)
-- `code` (string, valid Python defining `entry_function`)
-- `loc` (integer — what your harness measured)
-- `self_test_results` (object with `passed` and `failed` counts at minimum)
-- `rationale` (string)
-- `confidence` (number in `[0.0, 1.0]`)
+最終輸出必須嚴格依照 `validator.py` 驗證過關後所提供的 JSON 格式輸出，確保程式碼具備基礎的執行合法性。

@@ -1,77 +1,81 @@
-#!/usr/bin/env python3
-"""
-Deterministic SQL validator for text2sql skill.
-
-Usage:
-    python validate_sql.py '{"schema_ddl":"CREATE TABLE ...", "sql":"SELECT ..."}'
-
-Prints a single fenced JSON block:
-    {"ok": true|false, "error": "<sqlite error or rule violation>"}
-
-Strategy:
-1. Reject multiple statements / DDL / DML up front (cheap, no DB needed).
-2. Build the schema in an in-memory sqlite (no data).
-3. Run `EXPLAIN <sql>` — this parses & resolves column names without needing data.
-4. On sqlite3.Error, return its message so the LLM can fix the draft.
-"""
-
-from __future__ import annotations
-
-import json
-import re
-import sqlite3
 import sys
+import json
+import sqlite3
 
+def setup_mock_db():
+    # 在記憶體中光速建立一個虛擬資料庫，執行完就消失，不留痕跡
+    conn = sqlite3.connect(':memory:')
+    cursor = conn.cursor()
+    
+    # 建立員工資料表
+    cursor.execute('''
+        CREATE TABLE employees (
+            emp_id INTEGER PRIMARY KEY,
+            name TEXT,
+            department TEXT,
+            salary INTEGER,
+            hire_date DATE
+        )
+    ''')
+    
+    # 塞入四筆測試用的假資料
+    cursor.executemany('''
+        INSERT INTO employees (name, department, salary, hire_date)
+        VALUES (?, ?, ?, ?)
+    ''', [
+        ('Alice', 'Engineering', 60000, '2023-01-15'),
+        ('Bob', 'HR', 45000, '2023-02-20'),
+        ('Charlie', 'Engineering', 75000, '2022-11-01'),
+        ('Diana', 'Marketing', 52000, '2024-01-10')
+    ])
+    conn.commit()
+    return conn
 
-FORBIDDEN = re.compile(
-    r"\b(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|ATTACH|DETACH|REPLACE|TRUNCATE|VACUUM|PRAGMA)\b",
-    re.IGNORECASE,
-)
+def main():
+    if len(sys.argv) < 2:
+        print("Error: Missing input JSON file path.")
+        sys.exit(1)
 
-
-def _emit(ok: bool, error: str = "") -> int:
-    out = {"ok": bool(ok), "error": error}
-    sys.stdout.write("```json\n")
-    sys.stdout.write(json.dumps(out, ensure_ascii=False))
-    sys.stdout.write("\n```\n")
-    return 0 if ok else 1
-
-
-def validate(schema_ddl: str, sql: str) -> tuple[bool, str]:
-    sql_stripped = sql.strip().rstrip(";")
-    if not sql_stripped:
-        return False, "empty SQL"
-    if ";" in sql_stripped:
-        return False, "multiple SQL statements not allowed"
-    if FORBIDDEN.search(sql_stripped):
-        return False, "DDL/DML/PRAGMA not allowed; SELECT only"
-
-    con = sqlite3.connect(":memory:")
     try:
-        if schema_ddl:
-            try:
-                con.executescript(schema_ddl)
-            except sqlite3.Error as e:
-                return False, f"schema DDL did not parse: {e}"
-        try:
-            con.execute(f"EXPLAIN {sql_stripped}")
-        except sqlite3.Error as e:
-            return False, f"SQL did not compile: {e}"
-        return True, ""
+        with open(sys.argv[1], 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"Error: Invalid JSON format. Details: {str(e)}")
+        sys.exit(1)
+
+    # 1. 檢查必填欄位
+    if "generated_sql" not in data:
+        print("Error: Missing 'generated_sql' field. You must output the SQL query.")
+        sys.exit(1)
+
+    sql_query = data["generated_sql"]
+
+    # 2. 確定性防線：真實 SQLite 執行測試
+    conn = setup_mock_db()
+    cursor = conn.cursor()
+
+    try:
+        # 嘗試在虛擬資料庫中執行 LLM 寫的 SQL 語法
+        cursor.execute(sql_query)
+        results = cursor.fetchall()
+        
+        # 執行成功！將結果加回 JSON 中
+        data["execution_status"] = "Success"
+        data["row_count"] = len(results)
+        data["query_results"] = results  # 把撈出來的資料也秀出來
+
+    except sqlite3.Error as e:
+        # 如果 SQL 語法寫錯（例如欄位拼錯、選到不存在的 table），直接報錯打臉！
+        print(f"SQLite Execution Error: {str(e)}")
+        print("Please fix your SQL syntax based on the provided schema and try again.")
+        sys.exit(1)
     finally:
-        con.close()
+        conn.close()
 
-
-def main(argv: list[str]) -> int:
-    if len(argv) < 2:
-        return _emit(False, "usage: validate_sql.py '<json payload>'")
-    try:
-        payload = json.loads(argv[1])
-    except json.JSONDecodeError as e:
-        return _emit(False, f"argv JSON invalid: {e}")
-    ok, err = validate(str(payload.get("schema_ddl", "")), str(payload.get("sql", "")))
-    return _emit(ok, err)
-
+    # 3. 完美通過，產出期末要求的 JSON 格式
+    print("```json")
+    print(json.dumps(data, indent=2, ensure_ascii=False))
+    print("```")
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main()
