@@ -1,4 +1,4 @@
-patient_id,platelet_count
-P-1001,85000
-P-1002,42000
-P-1003,150000
+patient_id,platelet_count,Bilirubin,Albumin,INR,ECW_Ratio,Phase_Angle
+P-1001,85000,1.0,4.0,1.1,0.38,6.5
+P-1002,42000,4.5,2.5,2.8,0.43,3.2
+P-1003,150000,2.0,3.2,1.5,0.39,5.0

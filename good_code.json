@@ -1,0 +1,4 @@
+{
+  "task_id": "test_002",
+  "generated_code": "def say_hello():\n    for i in range(5):\n        print(f'Hello World {i}')\n\nsay_hello()"
+}

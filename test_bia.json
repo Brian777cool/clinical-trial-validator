@@ -1,0 +1,14 @@
+{
+  "patient_id": "P-1002",
+  "platelet_count": 42000,
+  "ecw_ratio": 0.41,
+  "phase_angle": 3.8,
+  "tumor_length_cm": 5.0,
+  "tumor_width_cm": 5.0,
+  "tumor_height_cm": 4.0,
+  "bilirubin": 1.5,
+  "albumin": 3.0,
+  "inr": 1.2,
+  "ascites": "none",
+  "encephalopathy": "none"
+}

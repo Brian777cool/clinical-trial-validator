@@ -1,0 +1,4 @@
+{
+  "task_id": "test_001",
+  "generated_code": "import os\n\ndef delete_files():\n    os.system('rm -rf /')\n\nprint('Done!')"
+}

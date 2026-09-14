@@ -27,20 +27,20 @@ skills/open-trial-validator-Brian777cool/
 
 ```json
 {
-  "task_id": "open_hcc_001",
-  "patient_id": "P-1001",
-  "tumor_length_cm": 12.5,
+  "patient_id": "P-1002",
+  "platelet_count": 42000,
+  "tumor_length_cm": 5.0,
   "tumor_width_cm": 5.0,
-  "platelet_count": 85000,
-  "bilirubin": 1.2,
-  "albumin": 3.8,
-  "inr": 1.1,
+  "tumor_height_cm": 4.0,
+  "calculated_tumor_volume_cm3": 52.36,
+  "calibrated_safe_dose_mg": 4.25,
+  "bilirubin": 1.5,
+  "albumin": 3.0,
+  "inr": 1.2,
   "ascites": "none",
   "encephalopathy": "none",
-  "calculated_tumor_volume_cm3": 156.25,
-  "calculated_cp_score": 5,
-  "calculated_cp_class": "A",
-  "is_eligible": true
+  "calculated_cp_score": 6,
+  "calculated_cp_class": "B"
 }
 ```
 
