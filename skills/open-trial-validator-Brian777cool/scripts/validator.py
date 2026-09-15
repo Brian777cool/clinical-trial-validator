@@ -3,83 +3,6 @@ import json
 import os
 import csv
 import math
-import streamlit as st
-import json
-import os
-import csv
-
-# 引入你們原本的計算與驗證邏輯
-import sys
-# 假設 validator.py 在同一個資料夾或對應路徑
-# 這裡直接把核心函式整合進來或 import 都可以
-
-st.set_page_config(page_title="臨床試驗智慧驗證系統", page_icon="🏥", layout="centered")
-
-st.title("🏥 臨床試驗智慧驗證與安全評估平台")
-st.markdown("請輸入病患的 EMR 數據、BIA 身體組成與腫瘤三徑尺寸，系統將自動進行多維度安全檢核。")
-
-with st.form("clinical_form"):
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        patient_id = st.selectbox("病患 ID (Patient ID)", ["P-1001", "P-1002", "P-1003"])
-        platelet_count = st.number_input("血小板計數 (Platelet)", value=85000, step=1000)
-        ecw_ratio = st.number_input("細胞外液比率 (ECW Ratio)", value=0.38, step=0.01)
-        phase_angle = st.number_input("相位角 (Phase Angle)", value=6.5, step=0.1)
-        bilirubin = st.number_input("膽紅素 (Bilirubin)", value=1.0, step=0.1)
-        albumin = st.number_input("白蛋白 (Albumin)", value=4.0, step=0.1)
-        
-    with col2:
-        inr = st.number_input("凝血酶原時間比 (INR)", value=1.1, step=0.1)
-        ascites = st.selectbox("腹水狀況 (Ascites)", ["none", "mild", "severe"])
-        encephalopathy = st.selectbox("肝腦病變 (Encephalopathy)", ["none", "grade 1", "grade 2"])
-        tumor_length = st.number_input("腫瘤長度 (Length cm)", value=4.0, step=0.1)
-        tumor_width = st.number_input("腫瘤寬度 (Width cm)", value=3.0, step=0.1)
-        tumor_height = st.number_input("腫瘤高度 (Height cm)", value=2.0, step=0.1)
-
-    submitted = st.form_submit_button("執行臨床試驗驗證")
-
-if submitted:
-    # 組合輸入資料
-    input_data = {
-        "patient_id": patient_id,
-        "platelet_count": int(platelet_count),
-        "ecw_ratio": float(ecw_ratio),
-        "phase_angle": float(phase_angle),
-        "tumor_length_cm": float(tumor_length),
-        "tumor_width_cm": float(tumor_width),
-        "tumor_height_cm": float(tumor_height),
-        "bilirubin": float(bilirubin),
-        "albumin": float(albumin),
-        "inr": float(inr),
-        "ascites": ascites,
-        "encephalopathy": encephalopathy
-    }
-    
-    # 模擬呼叫你們的驗證核心 (或直接在此處帶入檢核邏輯)
-    st.success("✅ 數據已成功送入驗證引擎！")
-    
-    # 顯示計算結果卡片
-    st.markdown("### 📊 驗證與計算結果")
-    
-    # 這裡可以直接呈現你們算出來的 Gold JSON 內容
-    sample_output = input_data.copy()
-    sample_output["calculated_tumor_volume_cm3"] = round(3.141592653589793 / 6 * tumor_length * tumor_width * tumor_height, 2)
-    sample_output["calculated_cp_score"] = 5
-    sample_output["calculated_cp_class"] = "A"
-    sample_output["calibrated_safe_dose_mg"] = 350.0
-    sample_output["is_eligible"] = True
-    
-    st.json(sample_output)
-    
-    # 提供 Gold JSON 下載按鈕
-    json_str = json.dumps(sample_output, indent=4, ensure_ascii=False)
-    st.download_button(
-        label="📥 下載 Gold JSON 驗證結果",
-        data=json_str,
-        file_name="output_gold.json",
-        mime="application/json"
-    )
 
 def calculate_tumor_volume(length, width, height):
     # 採用主流臨床三徑橢球公式 (pi/6 * L * W * H)
@@ -159,43 +82,72 @@ def validate_trial(data):
         tumor_height = float(data['tumor_height_cm'])
         if tumor_length > 20 or tumor_width > 20 or tumor_height > 20:
             return False, "Data Error: 腫瘤三徑尺寸超過人體解剖學極限（>20cm），請確認輸入數值。"
-            
+
     except (ValueError, TypeError):
         return False, "Data Type Violation: 格式錯誤"
     except KeyError as e:
         return False, f"Missing required field: {e}"
-    required = ["patient_id", "tumor_length_cm", "tumor_width_cm", "platelet_count", 
+
+    required = ["patient_id", "tumor_length_cm", "tumor_width_cm", "platelet_count",
                 "bilirubin", "albumin", "inr", "ascites", "encephalopathy"]
     for req in required:
         if req not in data:
             return False, f"Missing required field: {req}"
 
-   # 修改為直接抓取當前工作目錄
+    # 修改為直接抓取當前工作目錄
     db_path = os.path.abspath("mock_emr_db.csv")
-    
+
     # 若有建立實體 CSV，則進行比對；若無，則針對 Scenario 設定防護
     if os.path.exists(db_path):
         with open(db_path, mode='r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             found_patient = False
             for row in reader:
-                if row['patient_id'] == data['patient_id']:
-                    if int(row['platelet_count']) != int(data['platelet_count']):
-                        return False, f"Hallucination detected! Real platelet count for {data['patient_id']} does not match EMR."
-                    # ▼▼▼ BIA 防護網邏輯 ▼▼▼
-                        ecw_ratio = float(row['ECW_Ratio'])
-                        phase_angle = float(row['Phase_Angle'])
-                        
-                        bia_passed, bia_result = check_bia_safety(ecw_ratio, phase_angle)
-                        
-                        if not bia_passed:
-                            return False, bia_result
-                        
-                        data['calibrated_safe_dose_mg'] = bia_result
+               if row['patient_id'] == data['patient_id']:
+                found_patient = True
+    tolerance = 0.1  # 誤差容許值，避免浮點數精度問題誤判
+
+    if int(row['platelet_count']) != int(data['platelet_count']):
+        return False, f"Hallucination detected! Real platelet count for {data['patient_id']} does not match EMR."
+
+    if abs(float(row['Bilirubin']) - float(data['bilirubin'])) > tolerance:
+        return False, f"Hallucination detected! Real bilirubin for {data['patient_id']} does not match EMR."
+    if abs(float(row['Albumin']) - float(data['albumin'])) > tolerance:
+        return False, f"Hallucination detected! Real albumin for {data['patient_id']} does not match EMR."
+    if abs(float(row['INR']) - float(data['inr'])) > tolerance:
+        return False, f"Hallucination detected! Real INR for {data['patient_id']} does not match EMR."
+
+    # 腫瘤尺寸防幻覺比對
+    if abs(float(row['Tumor_Length_cm']) - float(data['tumor_length_cm'])) > tolerance:
+        return False, f"Hallucination detected! Real tumor length for {data['patient_id']} does not match EMR."
+    if abs(float(row['Tumor_Width_cm']) - float(data['tumor_width_cm'])) > tolerance:
+        return False, f"Hallucination detected! Real tumor width for {data['patient_id']} does not match EMR."
+    if abs(float(row['Tumor_Height_cm']) - float(data['tumor_height_cm'])) > tolerance:
+        return False, f"Hallucination detected! Real tumor height for {data['patient_id']} does not match EMR."
+
+    # ECW Ratio 與相位角防幻覺比對
+    if abs(float(row['ECW_Ratio']) - float(data['ecw_ratio'])) > tolerance:
+        return False, f"Hallucination detected! Real ECW ratio for {data['patient_id']} does not match EMR."
+    if abs(float(row['Phase_Angle']) - float(data['phase_angle'])) > tolerance:
+        return False, f"Hallucination detected! Real phase angle for {data['patient_id']} does not match EMR."
+
+    # BIA 防護網邏輯：使用 EMR 記錄的真實值進行安全計算
+    ecw_ratio = float(row['ECW_Ratio'])
+    phase_angle = float(row['Phase_Angle'])
+
+    bia_passed, bia_result = check_bia_safety(ecw_ratio, phase_angle)
+
+    if not bia_passed:
+                        return False, bia_result
+
+    data['calibrated_safe_dose_mg'] = bia_result
+
+    if not found_patient:
+                return False, f"Data Error: 找不到病患 {data['patient_id']} 的 EMR 紀錄。"
     else:
         # Fallback 防護 (針對我們在 OPEN_TRACK.md 設定的情境)
         if data['patient_id'] == 'P-1002' and data.get('platelet_count') == 100000:
-             return False, "Hallucination detected! Real platelet count for P-1002 is 42000."
+            return False, "Hallucination detected! Real platelet count for P-1002 is 42000."
 
     # 2. 幾何學體積驗算 (升級為臨床標準三徑橢球公式)
     length = float(data['tumor_length_cm'])
@@ -209,7 +161,7 @@ def validate_trial(data):
 
     # 3. 醫療演算法計分
     score, cp_class = get_child_pugh_score(
-        data['bilirubin'], data['albumin'], data['inr'], 
+        data['bilirubin'], data['albumin'], data['inr'],
         data['ascites'], data['encephalopathy']
     )
     data['calculated_cp_score'] = score
