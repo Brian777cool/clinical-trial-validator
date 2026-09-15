@@ -1,37 +1,99 @@
----
-name: open-trial-validator-Brian777cool
-description: Advanced PLGA nanocarrier clinical trial eligibility extraction with multi-layer deterministic validation.
-version: 1.0.0
-metadata:
-  hermes:
-    tags: [medical, oncology, verification, math]
-    category: medical
----
+# LLM Integration Guide: PLGA Nanocarrier Trial Validator
 
-# PLGA Nanocarrier Trial Validator Skill
+本文件說明如何讓 LLM（或其他自動化流程）正確地與本驗證系統協作，在處理病歷資料、抽取臨床數值時，避免產生幻覺（hallucination）並確保輸出符合系統的驗證需求。
 
-## When to Use
-當需要評估肝癌病患是否符合「主動標靶 PLGA 奈米載體」臨床試驗收案標準時觸發。
+## 設計理念：確定性運算包覆機率性模型
 
-## Procedure
-1. 閱讀病歷，嚴格抽取以下原始數據，**不要自行計算分數或體積**：
-   - `patient_id` (病患編號，如 P-1001)
-   - `tumor_length_cm` (腫瘤最大長徑，浮點數)
-   - `tumor_width_cm` (腫瘤最大垂直寬徑，浮點數)
-   - `platelet_count` (血小板數量，整數)
-   - `bilirubin` (總膽紅素 mg/dL，浮點數)
-   - `albumin` (白蛋白 g/dL，浮點數)
-   - `inr` (凝血酶原時間，浮點數)
-   - `ascites` (腹水狀態，僅限 "none", "mild", "severe")
-   - `encephalopathy` (肝性腦病變，僅限 "none", "grade 1", "grade 2", "grade 3", "grade 4")
-2. 將抽取的數據與 `task_id` 寫成一個純 JSON 檔案，存為 `temp_extract.json`。
-3. 執行指令：`python scripts/validator.py temp_extract.json`。
-4. **重點**：如果腳本回報「Hallucination detected」或「Medical Rule Violation」，請仔細閱讀錯誤訊息，修正你抽取的數值後重新執行腳本（最多重試 3 次）。
-5. 若腳本回報 "Validation Passed!"，請直接將腳本吐出的 ````json 區塊完整複製，作為你最後一個動作的輸出。
+本系統的核心架構理念在於「用確定性軟體外殼（Deterministic Harness）包覆機率性模型（Probabilistic LLM）」。在真實臨床試驗（如肝癌標靶療法）收案場景中，數據的微小失真均可能直接影響患者用藥安全性與試驗合規性。因此系統將「自然語言特徵抽取」與「嚴格數值運算」完全解耦：
 
-## Pitfalls
-- 試圖自行計算 Child-Pugh 分數或腫瘤體積，導致幻覺與數學錯誤。
-- 捏造病歷上沒有的血小板數據，未與 EMR 資料庫核對。
+- **LLM 的角色**：僅負責從病歷原文（自然語言）中抽取結構化數值，不執行任何計算或判斷
+- **`validator.py` 的角色**：接收結構化數值後，執行所有計算、比對與收案資格判斷，確保結果具備完全可重現的確定性
 
-## Verification
-最終輸出必須嚴格依照 `validator.py` 驗證過關後所提供的 JSON 格式輸出，不可遺漏由 Python 腳本計算出的 `calculated_tumor_volume_cm3` 與 `calculated_cp_class` 欄位。
+## 適用情境
+
+當需要評估肝癌病患是否符合「主動標靶 PLGA 奈米載體」臨床試驗收案標準，且病歷資料以非結構化文字（如醫師病歷記載、影像報告）形式提供時，適用本流程。
+
+## 操作流程
+
+### 1. 從病歷原文抽取結構化數值，**不要自行計算分數或體積**
+
+需抽取的欄位：
+
+- `patient_id`（病患編號，如 P-1001）
+- `tumor_length_cm`（腫瘤最大長徑，浮點數）
+- `tumor_width_cm`（腫瘤最大垂直寬徑，浮點數）
+- `tumor_height_cm`（腫瘤最大厚徑，浮點數）
+- `platelet_count`（血小板數量，整數）
+- `bilirubin`（總膽紅素 mg/dL，浮點數）
+- `albumin`（白蛋白 g/dL，浮點數）
+- `inr`（凝血酶原時間比，浮點數）
+- `ecw_ratio`（細胞外液比率，BIA 檢測數值，浮點數）
+- `phase_angle`（相位角，BIA 檢測數值，浮點數）
+- `ascites`（腹水狀態，僅限 "none", "mild", "severe"）
+- `encephalopathy`（肝腦病變程度，僅限 "none", "grade 1", "grade 2"）
+
+**抽取原則：**
+- 只抽取病歷中明確記載的原始數值，不得推估、四捨五入或補值
+- 若病歷中某必要欄位未記載，應明確標示「缺漏」，不得自行假設預設值
+- 腫瘤三徑務必分別記錄長、寬、高三個獨立數值，不得只記錄單一「腫瘤大小」
+- `ascites`、`encephalopathy` 務必精確依照病歷原文分類至指定選項，不得自行意譯或合併分級（例如病歷寫「輕微腹水」應對應 `"mild"`，不得寫成 `"none"` 或自創其他字串），因這兩項現已納入 EMR 防幻覺比對，字串不精確比對將導致誤判為幻覺
+
+### 2. 呼叫驗證引擎，不要自行計算
+
+所有分數、體積、安全劑量與 EMR 比對，一律交由 `validator.py` 的 `validate_trial()` 函式執行，包括：
+
+- 腫瘤幾何體積（臨床標準三徑橢球公式）
+- Child-Pugh 積分與分級
+- BIA 安全劑量校正
+- 與 EMR 資料庫的逐項數值比對（防幻覺機制）
+
+**嚴禁自行心算或估算任何醫療數值後直接下結論**，一律以驗證引擎回傳結果為準。這是本系統防止 LLM 幻覺的核心機制：即使 LLM 正確抽取了數據，若自行推論出的收案結論與 `validator.py` 實際計算結果矛盾，應以程式運算結果為準。
+
+### 3. 單筆評估
+
+將抽取出的資料組成對應的 JSON，執行：
+
+```bash
+python validator.py <輸入資料.json>
+```
+
+### 4. 批次評估（多筆病患）
+
+若需一次處理多筆病患申請案，將所有待驗證病患資料整理為單一 CSV，透過 `app.py` 的批次上傳區塊上傳，系統將逐筆呼叫驗證引擎並產出彙整結果表。批次檔案不需涵蓋 EMR 資料庫中的全部病患，僅需包含本次實際待審查的申請案子集合。
+
+## 驗證引擎的把關邏輯
+
+`validate_trial()` 依序執行以下檢核，任一項未通過即拒絕收案：
+
+1. **型別與欄位完整性檢查**：缺漏必要欄位或格式錯誤，直接拒絕
+2. **解剖學合理性檢查**：腫瘤三徑任一維度超過 20cm，判定數據異常
+3. **EMR 防幻覺比對**：以下欄位將與 `mock_emr_db.csv` 中對應病患的真實紀錄逐一比對：
+   - 血小板計數、膽紅素、白蛋白、INR（數值型，誤差超過 0.1 判定為幻覺）
+   - 腹水狀況、肝腦病變（字串型，須完全相符，不完全相符即判定為幻覺）
+   - 細胞外液比率、相位角、腫瘤長寬高（數值型，誤差超過 0.1 判定為幻覺）
+   - 若病患 ID 查無 EMR 紀錄，直接拒絕並回報錯誤，不得靜默放行
+
+   Child-Pugh 分級所需的五項指標（Bilirubin、Albumin、INR、Ascites、Encephalopathy）已達 100% 防幻覺覆蓋率，收案資格判斷的每一項輸入均經 EMR 核實。
+4. **BIA 身體組成安全檢核**：相位角低於 4.0 判定嚴重肌少症，直接拒絕
+5. **腫瘤體積上限檢查**：計算體積超過 250 cm³，判定不符合醫療規則
+6. **Child-Pugh 分級檢查**：僅接受 Class A
+
+## 常見失敗模式與處理方式
+
+| 失敗模式 | 觸發點 | 系統處理方式 |
+|---|---|---|
+| 格式解析失敗 | LLM 輸出附帶額外說明文字，或忘記輸出合法 JSON | `validator.py` 在解析階段直接報錯，可觸發上層重試機制 |
+| 醫學判斷矛盾 | LLM 自行判定病患符合資格，但抓出的數據實際算出 Child-Pugh B 級 | `validate_trial()` 重新計算，若發現違規則回傳 Medical Rule Violation，以程式運算結果覆蓋 LLM 的推論 |
+| 資料幻覺（數值型） | LLM 抽取或生成的數值與 EMR 真實紀錄不符 | 回傳 Hallucination detected，中斷驗證流程 |
+| 資料幻覺（分類型） | LLM 對 `ascites` / `encephalopathy` 的分類抽取錯誤或意譯，與 EMR 記載的分級不符 | 回傳 Hallucination detected，中斷驗證流程 |
+
+## 已知限制
+
+- BIA 相關數值（如相位角）目前僅設有下限防呆，未設定生理合理性上限，抽取時若遇明顯異常大值（如誤植的 270），應額外標註提醒，不應假設系統會自動攔截
+
+## 輸出格式
+
+驗證通過時，輸出包含以下欄位之標準 Gold JSON：
+`calculated_tumor_volume_cm3`、`calculated_cp_score`、`calculated_cp_class`、`calibrated_safe_dose_mg`、`is_eligible: true`
+
+驗證未通過時，輸出 `is_eligible: false` 並附上明確拒絕原因（Hallucination detected / Medical Rule Violation / Medical Data Violation / Data Error 四類之一）。

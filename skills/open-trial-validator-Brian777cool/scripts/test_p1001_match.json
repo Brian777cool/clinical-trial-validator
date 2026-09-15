@@ -10,10 +10,5 @@
     "tumor_width_cm": 3.0,
     "tumor_height_cm": 2.0,
     "ascites": "none",
-    "encephalopathy": "none",
-    "calibrated_safe_dose_mg": 350.0,
-    "calculated_tumor_volume_cm3": 12.566370614359172,
-    "calculated_cp_score": 5,
-    "calculated_cp_class": "A",
-    "is_eligible": true
+    "encephalopathy": "none"
 }

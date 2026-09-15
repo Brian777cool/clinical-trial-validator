@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 import json
 import csv
@@ -70,3 +71,59 @@ if submitted:
             file_name="output_gold.json",
             mime="application/json"
         )
+        st.markdown("---")
+st.markdown("## 📁 批次驗證（上傳 CSV）")
+st.markdown("上傳包含多筆病患申請資料的 CSV，系統將逐筆比對 EMR 並產出驗證結果彙整表。")
+
+uploaded_file = st.file_uploader("上傳批次驗證檔案（CSV）", type=["csv"])
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+
+    results = []
+    for _, row in df.iterrows():
+        input_data = row.to_dict()
+        try:
+            input_data["platelet_count"] = int(input_data["platelet_count"])
+            input_data["tumor_length_cm"] = float(input_data["tumor_length_cm"])
+            input_data["tumor_width_cm"] = float(input_data["tumor_width_cm"])
+            input_data["tumor_height_cm"] = float(input_data["tumor_height_cm"])
+            input_data["bilirubin"] = float(input_data["bilirubin"])
+            input_data["albumin"] = float(input_data["albumin"])
+            input_data["inr"] = float(input_data["inr"])
+            input_data["ecw_ratio"] = float(input_data["ecw_ratio"])
+            input_data["phase_angle"] = float(input_data["phase_angle"])
+        except (ValueError, KeyError) as e:
+            results.append({
+                "patient_id": input_data.get("patient_id", "未知"),
+                "驗證結果": "❌ 格式錯誤",
+                "原因": str(e)
+            })
+            continue
+
+        is_valid, result = validate_trial(input_data)
+
+        if is_valid:
+            results.append({
+                "patient_id": input_data["patient_id"],
+                "驗證結果": "✅ 通過",
+                "原因": "-"
+            })
+        else:
+            results.append({
+                "patient_id": input_data["patient_id"],
+                "驗證結果": "❌ 未通過",
+                "原因": result
+            })
+
+    result_df = pd.DataFrame(results)
+    st.markdown("### 📊 批次驗證結果")
+    st.dataframe(result_df, use_container_width=True)
+
+    csv_output = result_df.to_csv(index=False).encode('utf-8-sig')
+    st.download_button(
+        label="📥 下載批次驗證結果 (CSV)",
+        data=csv_output,
+        file_name="batch_validation_results.csv",
+        mime="text/csv"
+    )

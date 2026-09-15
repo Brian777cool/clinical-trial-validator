@@ -102,47 +102,49 @@ def validate_trial(data):
         with open(db_path, mode='r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             found_patient = False
+            tolerance = 0.1  # 誤差容許值，避免浮點數精度問題誤判
+
             for row in reader:
-               if row['patient_id'] == data['patient_id']:
-                found_patient = True
-    tolerance = 0.1  # 誤差容許值，避免浮點數精度問題誤判
+                if row['patient_id'] == data['patient_id']:
+                    found_patient = True
 
-    if int(row['platelet_count']) != int(data['platelet_count']):
-        return False, f"Hallucination detected! Real platelet count for {data['patient_id']} does not match EMR."
+                    if int(row['platelet_count']) != int(data['platelet_count']):
+                        return False, f"Hallucination detected! Real platelet count for {data['patient_id']} does not match EMR."
 
-    if abs(float(row['Bilirubin']) - float(data['bilirubin'])) > tolerance:
-        return False, f"Hallucination detected! Real bilirubin for {data['patient_id']} does not match EMR."
-    if abs(float(row['Albumin']) - float(data['albumin'])) > tolerance:
-        return False, f"Hallucination detected! Real albumin for {data['patient_id']} does not match EMR."
-    if abs(float(row['INR']) - float(data['inr'])) > tolerance:
-        return False, f"Hallucination detected! Real INR for {data['patient_id']} does not match EMR."
+                    if abs(float(row['Bilirubin']) - float(data['bilirubin'])) > tolerance:
+                        return False, f"Hallucination detected! Real bilirubin for {data['patient_id']} does not match EMR."
+                    if abs(float(row['Albumin']) - float(data['albumin'])) > tolerance:
+                        return False, f"Hallucination detected! Real albumin for {data['patient_id']} does not match EMR."
+                    if abs(float(row['INR']) - float(data['inr'])) > tolerance:
+                        return False, f"Hallucination detected! Real INR for {data['patient_id']} does not match EMR."
+                    if row['Ascites'] != data['ascites']:
+                        return False, f"Hallucination detected! Real ascites status for {data['patient_id']} does not match EMR."
+                    if row['Encephalopathy'] != data['encephalopathy']:
+                        return False, f"Hallucination detected! Real encephalopathy status for {data['patient_id']} does not match EMR."
+                    if abs(float(row['Tumor_Length_cm']) - float(data['tumor_length_cm'])) > tolerance:
+                        return False, f"Hallucination detected! Real tumor length for {data['patient_id']} does not match EMR."
+                    if abs(float(row['Tumor_Width_cm']) - float(data['tumor_width_cm'])) > tolerance:
+                        return False, f"Hallucination detected! Real tumor width for {data['patient_id']} does not match EMR."
+                    if abs(float(row['Tumor_Height_cm']) - float(data['tumor_height_cm'])) > tolerance:
+                        return False, f"Hallucination detected! Real tumor height for {data['patient_id']} does not match EMR."
 
-    # 腫瘤尺寸防幻覺比對
-    if abs(float(row['Tumor_Length_cm']) - float(data['tumor_length_cm'])) > tolerance:
-        return False, f"Hallucination detected! Real tumor length for {data['patient_id']} does not match EMR."
-    if abs(float(row['Tumor_Width_cm']) - float(data['tumor_width_cm'])) > tolerance:
-        return False, f"Hallucination detected! Real tumor width for {data['patient_id']} does not match EMR."
-    if abs(float(row['Tumor_Height_cm']) - float(data['tumor_height_cm'])) > tolerance:
-        return False, f"Hallucination detected! Real tumor height for {data['patient_id']} does not match EMR."
+                    if abs(float(row['ECW_Ratio']) - float(data['ecw_ratio'])) > tolerance:
+                        return False, f"Hallucination detected! Real ECW ratio for {data['patient_id']} does not match EMR."
+                    if abs(float(row['Phase_Angle']) - float(data['phase_angle'])) > tolerance:
+                        return False, f"Hallucination detected! Real phase angle for {data['patient_id']} does not match EMR."
 
-    # ECW Ratio 與相位角防幻覺比對
-    if abs(float(row['ECW_Ratio']) - float(data['ecw_ratio'])) > tolerance:
-        return False, f"Hallucination detected! Real ECW ratio for {data['patient_id']} does not match EMR."
-    if abs(float(row['Phase_Angle']) - float(data['phase_angle'])) > tolerance:
-        return False, f"Hallucination detected! Real phase angle for {data['patient_id']} does not match EMR."
+                    # BIA 防護網邏輯：使用 EMR 記錄的真實值進行安全計算
+                    ecw_ratio = float(row['ECW_Ratio'])
+                    phase_angle = float(row['Phase_Angle'])
 
-    # BIA 防護網邏輯：使用 EMR 記錄的真實值進行安全計算
-    ecw_ratio = float(row['ECW_Ratio'])
-    phase_angle = float(row['Phase_Angle'])
+                    bia_passed, bia_result = check_bia_safety(ecw_ratio, phase_angle)
 
-    bia_passed, bia_result = check_bia_safety(ecw_ratio, phase_angle)
-
-    if not bia_passed:
+                    if not bia_passed:
                         return False, bia_result
 
-    data['calibrated_safe_dose_mg'] = bia_result
+                    data['calibrated_safe_dose_mg'] = bia_result
 
-    if not found_patient:
+            if not found_patient:
                 return False, f"Data Error: 找不到病患 {data['patient_id']} 的 EMR 紀錄。"
     else:
         # Fallback 防護 (針對我們在 OPEN_TRACK.md 設定的情境)
@@ -172,7 +174,6 @@ def validate_trial(data):
 
     data['is_eligible'] = True
     return True, data
-
 # CLI 執行入口
 def main():
     if len(sys.argv) < 2:

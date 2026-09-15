@@ -17,3 +17,5 @@ verify_report.json
 
 # Generated dev set sqlite files — students rebuild via dev_set/basic/build_dbs.py
 dev_set/basic/dbs/*.sqlite
+# 課程框架殘留檔案，僅保留本機備份，不納入版本控制
+_pairwise_track_unused/
