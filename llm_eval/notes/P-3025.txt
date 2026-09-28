@@ -1,0 +1,8 @@
+Patient ID: P-3025
+Date: 2026/09/11
+61-year-old man, HBV cirrhosis, HCC in segment 3. Referred from local clinic for trial screening.
+Labs (09/10): platelet 97,000 /µL, total bilirubin 1.0 mg/dL, albumin 4.0 g/dL, PT-INR 1.07.
+Ultrasound: no ascites.
+BIA: ECW/TBW 0.37, phase angle 6.0°.
+CT: tumor 3.1 x 2.7 x 2.3 cm (longest axial x perpendicular axial x craniocaudal).
+Plan: complete screening work-up at next visit.

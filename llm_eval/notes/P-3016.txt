@@ -1,0 +1,7 @@
+Patient ID: P-3016
+Date: 2026/09/18
+62-year-old man, HBV cirrhosis. HCC in segment 5 was 2.5 cm on CT in 2025/12 and has grown.
+Labs (09/17): platelet 101,000 /µL, total bilirubin 1.2 mg/dL, albumin 3.8 g/dL, PT-INR 1.14.
+No ascites. No hepatic encephalopathy.
+BIA: ECW/TBW 0.38, phase angle 5.8°.
+Current CT (2026/09/16): tumor now 3.6 x 3.0 x 2.6 cm (longest axial x perpendicular axial x craniocaudal).

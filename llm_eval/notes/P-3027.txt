@@ -1,0 +1,7 @@
+Patient ID: P-3027
+Date: 2026/09/12
+74-year-old woman, HBV-related HCC in segment 5, atrial fibrillation on warfarin.
+Labs (09/11): platelet 116,000 /µL, total bilirubin 1.0 mg/dL, albumin 3.9 g/dL, PT-INR 2.45 (on warfarin).
+No ascites. No hepatic encephalopathy.
+BIA: ECW/TBW 0.38, phase angle 6.1°.
+CT: tumor 3.0 x 2.6 x 2.2 cm (longest axial x perpendicular axial x craniocaudal).

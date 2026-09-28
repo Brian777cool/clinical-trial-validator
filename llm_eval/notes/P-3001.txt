@@ -1,0 +1,8 @@
+Patient ID: P-3001
+Date: 2026/09/15  Hepatology OPD
+58-year-old male with chronic hepatitis B and a newly diagnosed hepatocellular carcinoma in segment 7, referred for trial screening.
+Labs (2026/09/14): Platelet 132,000 /µL, total bilirubin 0.8 mg/dL, albumin 4.1 g/dL, PT-INR 1.05.
+Abdominal ultrasound: no ascites.
+Neuro: alert and fully oriented, no signs of hepatic encephalopathy.
+BIA (50 kHz): ECW/TBW 0.37, phase angle 6.2°.
+Dynamic CT: single arterial-enhancing lesion in S7 measuring 3.2 cm (longest axial) x 2.6 cm (perpendicular axial) x 2.1 cm (craniocaudal).

@@ -1,0 +1,8 @@
+Patient ID: P-3004
+Date: 2026/09/18
+67-year-old man with HBV cirrhosis and a single HCC in segment 5.
+Labs (2026/09/17): Platelet 64,000 /µL, total bilirubin 2.4 mg/dL, albumin 3.2 g/dL, PT-INR 1.45.
+Ultrasound: mild ascites.
+Mental status: alert, oriented; hepatic encephalopathy none.
+BIA: ECW/TBW 0.40, phase angle 4.8°.
+CT: tumor 3.8 x 3.1 x 2.7 cm (longest axial x perpendicular axial x craniocaudal).

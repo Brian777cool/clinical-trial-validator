@@ -1,0 +1,7 @@
+Patient ID: P-3021
+Date: 2026/09/10
+53-year-old man, HBV carrier on entecavir (HBV DNA 2,340 IU/mL at start of therapy), HCC in segment 4, AFP 1,280 ng/mL, PIVKA-II 430 mAU/mL.
+Labs (09/09): WBC 5,400 /µL, Hb 13.8 g/dL, platelet 136,000 /µL, total bilirubin 0.7 mg/dL, albumin 4.2 g/dL, globulin 3.1 g/dL, PT 11.2 sec, PT-INR 1.01, creatinine 0.9 mg/dL.
+No ascites. No hepatic encephalopathy. ECOG 0, BMI 24.1.
+BIA: ECW/TBW 0.37, phase angle 6.4°.
+CT: tumor 2.8 x 2.4 x 2.0 cm (longest axial x perpendicular axial x craniocaudal).

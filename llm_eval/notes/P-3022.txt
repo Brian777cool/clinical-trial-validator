@@ -1,0 +1,7 @@
+Patient ID: P-3022
+Date: 2026/09/15
+72歲女性，HBV 相關肝硬化，S5 肝癌。近三個月食慾差、體重下降。
+Labs (09/14): platelet 79,000 /µL, total bilirubin 1.3 mg/dL, albumin 3.9 g/dL, PT-INR 1.18.
+無腹水 (no ascites)；意識清楚，無肝性腦病變。
+BIA (50 kHz): ECW/TBW 0.40，phase angle 3.6°。
+CT: tumor 3.2 x 2.8 x 2.4 cm (longest axial x perpendicular axial x craniocaudal).

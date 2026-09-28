@@ -1,0 +1,8 @@
+Patient ID: P-3006
+Date: 2026/09/19  Screening visit
+71-year-old man with decompensated alcoholic cirrhosis and HCC in segment 8.
+Labs (2026/09/18): Platelet 51,000 /µL; total bilirubin 3.4 mg/dL; albumin 2.6 g/dL; PT-INR 1.92.
+Ultrasound: moderate ascites.
+Neuro: mild inattention and slowed calculation; hepatic encephalopathy grade 1 (West Haven).
+BIA: ECW/TBW 0.42, phase angle 3.9°.
+CT: tumor 4.2 x 3.6 x 3.1 cm (longest axial x perpendicular axial x craniocaudal).

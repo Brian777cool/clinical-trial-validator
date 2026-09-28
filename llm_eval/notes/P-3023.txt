@@ -1,0 +1,7 @@
+Patient ID: P-3023
+Date: 2026/09/18
+60-year-old man, HBV cirrhosis, HCC in segment 7.
+Labs (09/17): platelet 92,000 /µL, total bilirubin 1.1 mg/dL, albumin 4.0 g/dL, PT-INR 1.09.
+No ascites. No hepatic encephalopathy.
+BIA: not performed (patient has an implanted cardiac pacemaker).
+CT: tumor 3.4 x 2.9 x 2.5 cm (longest axial x perpendicular axial x craniocaudal).

@@ -1,0 +1,7 @@
+Patient ID: P-3008
+Date: 2026/09/17
+57-year-old man, HBV cirrhosis, large HCC occupying segments 6-7.
+Labs (2026/09/16): platelet 89,000 /µL, total bilirubin 1.3 mg/dL, albumin 3.7 g/dL, PT-INR 1.15.
+Ascites: none. Hepatic encephalopathy: none.
+BIA: ECW/TBW 0.38, phase angle 5.6°.
+CT: dominant mass 8.6 x 7.9 x 7.2 cm (longest axial x perpendicular axial x craniocaudal), no vascular invasion.

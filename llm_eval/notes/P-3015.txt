@@ -1,0 +1,7 @@
+Patient ID: P-3015
+Date: 2026/09/12
+59-year-old female, HBV-related HCC in segment 2.
+Labs (09/11): platelet 94,000 /µL, total bilirubin 1.0 mg/dL, albumin 4.1 g/dL, PT-INR 1.06.
+No ascites. Alert, oriented x3, no asterixis.
+BIA: ECW/TBW 0.37, phase angle 6.3°.
+MRI: tumor measures 2.2 cm (craniocaudal) x 3.4 cm (anteroposterior, longest axial) x 2.9 cm (transverse, perpendicular axial).

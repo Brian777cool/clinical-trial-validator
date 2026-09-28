@@ -1,0 +1,7 @@
+Patient ID: P-3018
+Date: 2026/09/09
+47-year-old male, chronic HBV, small HCC in segment 3, good performance status.
+Labs (09/08): PLT 125,000 /µL, T-bil 0.8 mg/dL, Alb 4.4 g/dL, PT-INR 0.99.
+No ascites; no HE.
+InBody (50 kHz): PhA 7.1°, ECW/TBW 0.360.
+MRI: tumor 2.6 x 2.2 x 1.9 cm (longest axial x perpendicular axial x craniocaudal).

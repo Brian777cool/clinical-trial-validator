@@ -1,0 +1,7 @@
+Patient ID: P-3012
+Date: 2026/09/15
+64-year-old man with HBV-related cirrhosis; HCC in segment 7 detected on surveillance.
+Labs from overseas hospital before transfer (2026/09/13): platelet 67,000 /µL, total bilirubin 1.4 mg/dL, albumin 35 g/L, INR 1.25.
+Ascites: none. HE: none.
+BIA: ECW/TBW 0.39, phase angle 5.2°.
+MRI: 4.4 x 3.7 x 3.2 cm (longest axial x perpendicular axial x craniocaudal).

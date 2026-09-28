@@ -1,0 +1,6 @@
+Patient ID: P-3029
+Date: 2026/09/19
+63-year-old man, HCV cirrhosis. CT shows two lesions: target lesion in S8 measuring 4.3 x 3.6 x 3.2 cm (longest axial x perpendicular axial x craniocaudal), and a 1.2 cm arterial-enhancing nodule in S6.
+Labs (09/18): platelet 99,000 /µL, total bilirubin 1.2 mg/dL, albumin 3.8 g/dL, PT-INR 1.12.
+No ascites. No hepatic encephalopathy.
+BIA: ECW/TBW 0.38, phase angle 5.8°.

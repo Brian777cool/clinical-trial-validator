@@ -1,0 +1,31 @@
+patient_id,tier,expected_result,detail
+P-3001,A,ELIGIBLE,
+P-3002,A,ELIGIBLE,
+P-3003,A,ELIGIBLE,
+P-3004,A,Not eligible,Not eligible（未符合收案條件）: Child-Pugh 8 分（Class B），本試驗僅收 Class A
+P-3005,A,ELIGIBLE,
+P-3006,A,Not eligible,Not eligible（未符合收案條件）: Child-Pugh 13 分（Class C），本試驗僅收 Class A；相位角 3.9 低於示範閾值 4.0（示範規則）
+P-3007,A,Not eligible,Not eligible（未符合收案條件）: 相位角 3.7 低於示範閾值 4.0（示範規則）
+P-3008,A,Not eligible,Not eligible（未符合收案條件）: 腫瘤體積 256.13 cm³ 超過示範上限 250 cm³（示範規則）
+P-3009,A,ELIGIBLE,
+P-3010,A,ELIGIBLE,
+P-3011,B,ELIGIBLE,
+P-3012,B,ELIGIBLE,
+P-3013,B,ELIGIBLE,
+P-3014,B,Not eligible,Not eligible（未符合收案條件）: Child-Pugh 8 分（Class B），本試驗僅收 Class A
+P-3015,B,ELIGIBLE,
+P-3016,B,ELIGIBLE,
+P-3017,B,Not eligible,Not eligible（未符合收案條件）: Child-Pugh 11 分（Class C），本試驗僅收 Class A
+P-3018,B,ELIGIBLE,
+P-3019,B,ELIGIBLE,
+P-3020,B,ELIGIBLE,
+P-3021,B,ELIGIBLE,
+P-3022,B,Not eligible,Not eligible（未符合收案條件）: 相位角 3.6 低於示範閾值 4.0（示範規則）
+P-3023,C,Missing required field,Missing required field: ecw_ratio
+P-3024,C,Missing required field,Missing required field: tumor_height_cm
+P-3025,C,Missing required field,Missing required field: encephalopathy
+P-3026,C,ELIGIBLE,
+P-3027,C,Not eligible,Not eligible（未符合收案條件）: Child-Pugh 7 分（Class B），本試驗僅收 Class A
+P-3028,C,ELIGIBLE,
+P-3029,C,ELIGIBLE,
+P-3030,C,ELIGIBLE,

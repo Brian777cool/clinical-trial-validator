@@ -1,0 +1,8 @@
+Patient ID: P-3017
+Date: 2026/09/20  Ward note
+70-year-old man, alcoholic cirrhosis, HCC in segment 7. Admitted for behavior change.
+Labs (09/19): platelet 73,000 /µL, total bilirubin 2.8 mg/dL, albumin 2.9 g/dL, PT-INR 1.76.
+Moderate ascites, on spironolactone and furosemide.
+Neuro: disoriented to time but oriented to person and place, not somnolent, inappropriate behavior, asterixis present; lactulose started.
+BIA: ECW/TBW 0.41, phase angle 4.4°.
+CT: tumor 4.6 x 3.9 x 3.3 cm (longest axial x perpendicular axial x craniocaudal).

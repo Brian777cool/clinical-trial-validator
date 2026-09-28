@@ -1,0 +1,7 @@
+Patient ID: P-3010
+Date: 2026/09/20
+66-year-old woman, HCV cirrhosis, HCC in segment 5.
+Labs (2026/09/19): platelet 72,000 /µL, total bilirubin 1.8 mg/dL, albumin 3.4 g/dL, PT-INR 1.35.
+Ascites: none. Hepatic encephalopathy: none.
+BIA: ECW/TBW 0.39, phase angle 5.0°.
+CT: tumor 4.0 x 3.5 x 3.0 cm (longest axial x perpendicular axial x craniocaudal).

@@ -1,0 +1,7 @@
+Patient ID: P-3020
+Date: 2026/09/17
+68-year-old man, HBV cirrhosis, HCC S8.
+Labs (09/16): platelet 61,000 /µL; T-bil 1.9 mg/dL (D-bil 0.8 mg/dL); albumin 3.3 g/dL; PT-INR 1.41; AST 58 U/L; ALT 44 U/L.
+No ascites. No hepatic encephalopathy.
+BIA: ECW/TBW 0.40, phase angle 4.9°.
+CT: tumor 3.7 x 3.2 x 2.8 cm (longest axial x perpendicular axial x craniocaudal).

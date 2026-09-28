@@ -1,0 +1,7 @@
+Patient ID: P-3003
+Visit date: 2026/09/12
+55 y/o man, alcohol-related cirrhosis, abstinent for 2 years. HCC in segment 6 found on surveillance ultrasound.
+Labs 2026/09/11: platelet 76,000 /µL; total bilirubin 1.6 mg/dL; albumin 3.6 g/dL; PT-INR 1.20.
+PE: no shifting dullness; ultrasound confirms no ascites. Conscious, clear; no asterixis. Hepatic encephalopathy: none.
+BIA: ECW/TBW 0.39, phase angle 5.4 degrees.
+CT: S6 tumor 5.1 cm x 4.4 cm x 3.9 cm (longest axial x perpendicular axial x craniocaudal).

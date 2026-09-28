@@ -1,0 +1,11 @@
+Patient ID: P-3002
+Date: 2026/09/16  Screening visit
+63-year-old female, HCV-related cirrhosis s/p DAA with SVR, HCC in segment 4.
+Laboratory data (2026/09/15):
+- Platelet: 98,000 /µL
+- Total bilirubin: 1.2 mg/dL
+- Albumin: 3.8 g/dL
+- PT-INR: 1.12
+Ascites: none. Hepatic encephalopathy: none.
+Body composition (BIA): ECW/TBW 0.38; phase angle 5.9°.
+MRI: tumor 4.5 x 3.8 x 3.0 cm (longest axial x perpendicular axial x craniocaudal).

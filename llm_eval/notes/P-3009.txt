@@ -1,0 +1,7 @@
+Patient ID: P-3009
+Date: 2026/09/11
+52-year-old male with MASH-related cirrhosis and HCC in segment 4.
+Labs (2026/09/10): platelet 143,000 /µL; total bilirubin 0.9 mg/dL; albumin 4.0 g/dL; PT-INR 1.02.
+No ascites. No hepatic encephalopathy.
+BIA: ECW/TBW 0.37, phase angle 6.1°.
+MRI: tumor 2.9 x 2.5 x 2.2 cm (longest axial x perpendicular axial x craniocaudal).

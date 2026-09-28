@@ -1,0 +1,7 @@
+Patient ID: P-3005
+Date: 2026/09/10
+49-year-old female, chronic HBV carrier on entecavir, compensated liver function. Small HCC in segment 2.
+Labs (2026/09/09): platelet 158,000 /µL, total bilirubin 0.7 mg/dL, albumin 4.3 g/dL, PT-INR 0.98.
+No ascites. No hepatic encephalopathy.
+BIA: ECW/TBW 0.36, phase angle 6.8°.
+MRI: lesion 2.4 x 2.0 x 1.7 cm (longest axial x perpendicular axial x craniocaudal).

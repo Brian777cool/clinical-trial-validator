@@ -1,0 +1,8 @@
+Patient ID: P-3014
+Date: 2026/09/16
+69-year-old man, HCV cirrhosis, HCC S4/S8 junction.
+Labs (09/15): platelet 58,000 /µL, total bilirubin 2.1 mg/dL, albumin 3.1 g/dL, PT-INR 1.58.
+Ultrasound: small amount of perihepatic ascites; no shifting dullness on exam, no need for paracentesis.
+Mental status clear; no hepatic encephalopathy.
+BIA: ECW/TBW 0.40; phase angle 4.6°.
+CT: tumor 3.9 x 3.4 x 2.9 cm (longest axial x perpendicular axial x craniocaudal).

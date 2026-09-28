@@ -1,0 +1,8 @@
+Patient ID: P-3013
+Date: 2026/09/19
+54-year-old woman, chronic HBV, HCC in segment 6.
+Labs 2026/09/02 (outside clinic): total bilirubin 1.4 mg/dL, PT-INR 1.21, platelet 108,000 /µL, albumin 4.0 g/dL.
+Labs 2026/09/18 (most recent): total bilirubin 0.9 mg/dL, PT-INR 1.03, platelet 120,000 /µL, albumin 4.2 g/dL.
+Ascites: none. 意識清楚，無撲翼樣震顫，no hepatic encephalopathy.
+BIA 09/18: ECW/TBW 0.36, phase angle 6.5°.
+CT: tumor 3.0 x 2.7 x 2.3 cm (longest axial x perpendicular axial x craniocaudal).
