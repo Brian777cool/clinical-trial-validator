@@ -1,8 +1,10 @@
-# 臨床試驗智慧驗證系統（Clinical Trial Validation System）
+# 臨床試驗收案驗證系統（Clinical Trial Eligibility Validator）
 
-整合電子病歷（EMR）、身體組成分析（BIA）與腫瘤幾何尺寸的智慧化臨床試驗收案自動化驗證平台。本系統透過嚴格的多維度安全檢核與防幻覺（Anti-Hallucination）比對機制，確保受試者篩選流程的安全性與數據合規性，並支援單筆與批次兩種驗證模式，自動輸出標準的 Gold JSON / CSV 驗證結果。
+以規則式邏輯實作的臨床試驗收案驗證工具，以「肝癌標靶奈米藥物試驗」作為假想情境。系統把研究端填報的收案資料與模擬的電子病歷（EMR）逐項核對，一致後再以 EMR 原始資料計算 Child-Pugh 分級，並判斷是否符合收案條件；支援單筆與批次兩種驗證模式，輸出 JSON / CSV 驗證結果。
 
 > 本專案原為課程期末專案，現整理為獨立作品集項目。
+
+> ⚠️ **聲明**：本專案所有病患資料皆為模擬資料，不含任何真實病歷。BIA 相位角、腫瘤尺寸與體積的閾值為自訂的示範規則，並非真實臨床試驗的收案標準；假想試驗的條件也刻意不完整（未含 BCLC 分期、ECOG、病毒學、先前治療等）。本系統僅供學習與展示，不可用於臨床決策。
 
 ---
 
@@ -13,90 +15,97 @@ clinical-trial-validator/
 │
 ├── skills/
 │   └── open-trial-validator-Brian777cool/
+│       ├── SKILL.md                    # LLM 串接的設計構想（本 repo 未實作 LLM 串接）
 │       └── scripts/
 │           ├── app.py                  # Streamlit 互動式前端介面（單筆表單 + 批次上傳）
-│           ├── validator.py            # 核心驗證邏輯與防呆引擎（EMR 比對、BIA、Child-Pugh、尺寸防呆）
-│           ├── mock_emr_db.csv         # 模擬電子病歷資料庫（病患真實紀錄，比對基準）
-│           ├── batch_input_test.csv    # 批次驗證測試用申請資料範例
-│           └── output_gold.json        # 單筆驗證產出之標準 Gold JSON 結果
+│           ├── validator.py            # 核心驗證邏輯（原始資料核對、Child-Pugh、示範規則）
+│           ├── test_validator.py       # pytest 單元測試
+│           ├── mock_emr_db.csv         # 模擬電子病歷資料庫（核對基準）
+│           ├── batch_input_test.csv    # 批次驗證範例資料
+│           ├── test_pass.json          # CLI 範例輸入（符合收案條件）
+│           ├── test_bia.json           # CLI 範例輸入（未符合收案條件）
+│           └── sample_output.json      # CLI 輸出範例
 │
 ├── README.md
 ├── report.md                           # 除錯與功能開發技術報告
 └── requirements.txt
 ```
 
-`app.py` 與 `validator.py` 明確分工：前者僅負責 Streamlit UI 呈現與使用者輸入收集，後者為純邏輯運算核心，可獨立以 CLI 或 pytest 呼叫，不依賴 Streamlit 執行環境。
+`app.py` 只負責 Streamlit 介面與輸入收集，`validator.py` 為純邏輯核心，可獨立以 CLI 或 pytest 呼叫，不依賴 Streamlit。
 
 ---
 
-## 資料設計：EMR 資料庫 vs. 申請輸入資料
-
-系統刻意將資料來源拆分為兩份角色不同的檔案，這是防幻覺機制成立的基礎：
+## 資料設計：EMR 原始資料 vs. 填報資料
 
 | 檔案 | 角色 | 說明 |
 |---|---|---|
-| `mock_emr_db.csv` | 病患真實病歷（信任基準） | 代表醫院既有、經核實的官方紀錄，是所有病患的母體資料庫 |
-| 使用者輸入 / 批次上傳檔 | 本次收案申請資料 | 代表這次填寫或由 LLM 生成的申請數據，需與 EMR 比對驗證真偽 |
+| `mock_emr_db.csv` | 模擬 EMR（核對基準） | 模擬醫院既有的病歷紀錄 |
+| 單筆表單 / 批次上傳檔 | 研究端填報的收案資料 | 可能由人工填寫，或未來由 LLM 從病歷文字抽取，都必須先與 EMR 核對 |
 
-兩者刻意分離的價值：
-1. **防幻覺比對的前提**：若輸入與比對基準合併為同一份，系統將無從偵測資料是否被竄改或誤植
-2. **彈性處理子集合**：批次輸入檔不需要涵蓋 EMR 資料庫中的所有病患，僅需包含「本次實際要處理的申請案」，貼近真實醫院場景中分批審核的作業模式
+兩者刻意分開，系統才能偵測填報資料是否誤植或與病歷不符。這個概念上對應臨床試驗中的原始資料核對（source data verification, SDV），但本系統只是自動化的欄位比對，並不等同監測員執行的完整 SDV。
 
 ---
 
-## 核心功能與防呆機制
+## 驗證流程
 
-### 1. EMR 防幻覺比對（Hallucination Detection）
+`validate_trial()` 依序執行：
 
-系統以 `mock_emr_db.csv` 中的官方病歷紀錄為信任基準，將使用者（或 LLM）輸入的數值與真實紀錄逐一比對，任何不一致將立即攔截並拒絕驗證：
+1. **欄位完整性與格式檢查**：缺漏或空白欄位、非數值、NaN、零或負值、未知的腹水／肝性腦病變分級，一律拒絕
+2. **資料合理性檢查**：腫瘤單一徑長超過 20 cm 時拒絕，並提示人工確認數值（示範上限）
+3. **原始資料核對**：與 `mock_emr_db.csv` 中對應病患的紀錄逐項比對，列出所有不一致的欄位並停止，請使用者核對原始文件；EMR 資料庫不存在或查無病患時一律拒絕，不會靜默放行
+4. **收案條件判定**：以 EMR 原始資料計算，列出**所有**未符合的條件
+   - Child-Pugh 僅收 Class A
+   - 相位角 < 4.0°（示範規則）
+   - 腫瘤體積 > 250 cm³（示範規則，以三徑橢球公式估算）
 
-| 欄位 | 防幻覺比對 |
-|---|---|
-| 血小板計數 (Platelet Count) | ✅ |
-| 膽紅素 (Bilirubin) | ✅ |
-| 白蛋白 (Albumin) | ✅ |
-| 凝血酶原時間比 (INR) | ✅ |
-| 腹水狀況 (Ascites) | ✅ |
-| 肝腦病變 (Encephalopathy) | ✅ |
-| 細胞外液比率 (ECW Ratio) | ✅ |
-| 相位角 (Phase Angle) | ✅ |
-| 腫瘤長 / 寬 / 高 (Tumor Length/Width/Height) | ✅ |
+### 原始資料核對欄位
 
-**Child-Pugh 分級所需的五項指標（Bilirubin、Albumin、INR、Ascites、Encephalopathy）已達 100% 防幻覺覆蓋率**，收案資格判斷的每一項輸入都經過 EMR 真實紀錄核實，無死角。
+| 欄位 | 單位 | 比對方式 |
+|---|---|---|
+| 血小板 (Platelet) | /µL | 正整數，須完全相符 |
+| 總膽紅素 (Bilirubin) | mg/dL | 誤差 ≤ 0.05 |
+| 白蛋白 (Albumin) | g/dL | 誤差 ≤ 0.05 |
+| PT-INR | — | 誤差 ≤ 0.005 |
+| ECW/TBW 比值 | — | 誤差 ≤ 0.005 |
+| 相位角 (Phase Angle, 50 kHz) | ° | 誤差 ≤ 0.05 |
+| 腫瘤長徑 / 寬徑 / 頭尾徑 | cm | 誤差 ≤ 0.05 |
+| 腹水 (Ascites) | — | 須完全相符 |
+| 肝性腦病變 (Hepatic Encephalopathy) | — | 須完全相符 |
 
-比對邏輯採「逐筆病患獨立比對」設計：僅在於 EMR 中找到對應 `patient_id` 的該筆紀錄內執行比對，避免迴圈變數殘留造成誤判。若查無病患 ID 於 EMR 資料庫，系統會明確回報錯誤，不會靜默放行。
+差距不超過各欄位報告最小單位的一半，即視為一致（本模擬資料的 ECW/TBW 以兩位小數記錄；實際儀器多報到小數點後三位）。血小板目前只做核對，未作為收案條件。
 
-### 2. 解剖學防呆攔截
+### Child-Pugh 計分標準
 
-內建腫瘤三徑尺寸極限過濾（單一維度超過 20 cm 時自動攔截），杜絕異常輸入導致的數據失真。
+| 指標 | 1 分 | 2 分 | 3 分 |
+|---|---|---|---|
+| Bilirubin (mg/dL) | < 2.0 | 2.0–3.0 | > 3.0 |
+| Albumin (g/dL) | > 3.5 | 2.8–3.5 | < 2.8 |
+| PT-INR | < 1.7 | 1.7–2.3 | > 2.3 |
+| Ascites | none | mild | moderate / severe |
+| Hepatic encephalopathy (West Haven) | none | grade 1–2 | grade 3–4 |
 
-### 3. BIA 身體組成安全檢核
+總分 5–6 分為 Class A、7–9 分為 Class B、10–15 分為 Class C。本系統以 EMR 原始資料計分，避免比對容許誤差讓分級在邊界翻轉。
 
-- **肌少症防線**：相位角（Phase Angle）低於 4.0 時，直接判定無法承受標靶奈米載體代謝負荷，攔截收案。
-- **腹水校正**：依細胞外液比率（ECW Ratio）自動校正乾重（Dry Weight），據以計算安全劑量。
+### BIA 身體組成（示範規則）
 
-### 4. 生理指標自動計算
+相位角常被用來反映細胞膜完整性與營養狀態，但它本身並不是肌少症或收案資格的診斷標準；而且在有腹水或水腫的病人，BIA 的推估本來就不可靠。本系統以「相位角 < 4.0°」作為自訂的示範規則，只是用來展示如何把身體組成指標納入檢核。ECW/TBW 比值目前只做核對，不參與判斷。
 
-- 即時計算腫瘤三維幾何體積（採用臨床標準三徑橢球公式：π/6 × 長 × 寬 × 高），並設有 250 cm³ 上限管制。
-- 自動計算肝硬化嚴重度之 Child-Pugh 積分與分級（Class A / B / C），僅接受 Class A 收案。
+---
 
-### 5. 互動式網頁介面（單筆驗證）
+## 互動式網頁介面
 
-提供直覺的 Streamlit 操作介面，病患下拉選單動態讀取 EMR 資料庫（新增病例僅需維護 `mock_emr_db.csv` 一份檔案，無需修改 `app.py`），驗證通過後支援一鍵下載標準化之 `output_gold.json`。
-
-### 6. 批次驗證（CSV 上傳）
-
-支援一次上傳包含多筆病患申請資料的 CSV，系統逐筆呼叫核心驗證邏輯並產出彙整結果表，無需一個一個透過表單手動輸入：
-
-- 每筆申請資料依 `patient_id` 至 EMR 資料庫中獨立比對，結果互不干擾
-- 彙整表清楚標示每筆申請的通過 / 未通過狀態與具體攔截原因
-- 支援一鍵下載完整批次驗證結果 CSV
+- **單筆驗證**：病患下拉選單直接讀取 EMR 資料庫，驗證通過後可下載 `validation_result.json`。
+- **批次驗證**：上傳多筆填報資料的 CSV，系統逐筆核對並產出彙整表，可下載結果 CSV。CSV 一律以文字讀入，空白欄位會被判定為缺漏。
 
 ---
 
 ## 已知限制（Known Limitations）
 
-- **BIA 數值上限**：相位角等生理指標目前僅設有下限防呆（如肌少症門檻），未設定生理合理性上限，極端異常大值（如打字誤植）可能未被攔截。此為刻意保留的已知限制，補齊需先制定合理的生理數值上限範圍，屬於後續可擴充項目。
+- **全部為模擬資料**：未以真實病歷驗證；若要使用真實資料，須先通過人體研究倫理審查（IRB）並完成去識別化。
+- **示範閾值**：相位角 4.0°、腫瘤徑長 20 cm、腫瘤體積 250 cm³ 皆為自訂的示範規則，非臨床標準。真實的肝癌試驗通常以 RECIST 1.1 / mRECIST 的可測量病灶與 BCLC 分期來定義腫瘤負荷。
+- **未涵蓋的臨床細節**：未處理檢驗日期與篩選期、抗凝血劑對 INR 的影響、輸注白蛋白後的數值、以藥物控制的腹水或肝性腦病變等情況。
+- **EMR 資料品質**：系統以 EMR 為核對基準，若 EMR 本身有誤，核對結果也會跟著錯。
+- **LLM 串接**：`SKILL.md` 描述的是讓 LLM 從病歷文字抽取數值、再交給本系統核對的設計構想，本 repo 目前未實作 LLM 串接。
 
 ---
 
@@ -115,33 +124,39 @@ cd skills/open-trial-validator-Brian777cool/scripts
 python -m streamlit run app.py
 ```
 
-**以 CLI 方式執行單筆驗證（供自動化測試 / pytest 使用）：**
+**以 CLI 方式執行單筆驗證：**
 
 ```bash
-python validator.py <輸入資料.json>
+cd skills/open-trial-validator-Brian777cool/scripts
+python validator.py test_pass.json
 ```
 
-執行成功後，會於當前目錄輸出 `output_gold.json` 作為標準驗證結果。
+執行成功後會輸出 `validation_result.json`（已列入 `.gitignore`），格式同 `sample_output.json`。
+
+**執行單元測試：**
+
+```bash
+cd skills/open-trial-validator-Brian777cool/scripts
+python -m pytest -q
+```
 
 ---
 
 ## 新增病例資料
 
-新增病例需分兩步驟維護，缺一不可：
-
-**1. 於 `mock_emr_db.csv` 建立該病患的真實病歷紀錄**（作為未來所有申請的比對基準）：
+**1. 於 `mock_emr_db.csv` 建立該病患的模擬 EMR 紀錄**：
 
 ```
 patient_id,platelet_count,Bilirubin,Albumin,INR,ECW_Ratio,Phase_Angle,Tumor_Length_cm,Tumor_Width_cm,Tumor_Height_cm,Ascites,Encephalopathy
 ```
 
-**2. 於單筆表單輸入或 `batch_input_test.csv` 新增該病患的申請資料**（若欲測試正常通過案例，數值應與 EMR 紀錄一致）：
+**2. 於單筆表單或批次 CSV 輸入該病患的填報資料**（若要測試通過案例，數值應與 EMR 一致）：
 
 ```
 patient_id,platelet_count,bilirubin,albumin,inr,ecw_ratio,phase_angle,tumor_length_cm,tumor_width_cm,tumor_height_cm,ascites,encephalopathy
 ```
 
-儲存 `mock_emr_db.csv` 後重新整理 Streamlit 頁面，新病例即會自動出現於單筆表單的病患 ID 下拉選單中，無需修改 `app.py`。
+`ascites` 只接受 `none`、`mild`、`moderate`、`severe`；`encephalopathy` 只接受 `none`、`grade 1`～`grade 4`。
 
 ---
 
