@@ -1,6 +1,6 @@
 # LLM Integration Guide: Clinical Trial Eligibility Validator
 
-> **說明**：本文件描述「讓 LLM 從病歷文字抽取數值，再交給本系統核對與判定」的設計構想。本 repo 目前只實作驗證引擎（`validator.py`），尚未實作 LLM 串接與重試流程。
+> **說明**：本文件描述「讓 LLM 從病歷文字抽取數值，再交給本系統核對與判定」的設計構想。本 repo 目前只實作驗證引擎（`validator.py`），尚未實作 LLM 串接與重試流程。抽取效果的初步評估見 repo 最外層的 `llm_eval/`。
 
 ## 設計理念：確定性運算包覆機率性模型
 

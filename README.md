@@ -26,6 +26,7 @@ clinical-trial-validator/
 │           ├── test_bia.json           # CLI 範例輸入（未符合收案條件）
 │           └── sample_output.json      # CLI 輸出範例
 │
+├── llm_eval/                           # LLM 病歷抽取評估（30 份模擬病歷）
 ├── README.md
 ├── report.md                           # 除錯與功能開發技術報告
 └── requirements.txt
@@ -105,7 +106,7 @@ clinical-trial-validator/
 - **示範閾值**：相位角 4.0°、腫瘤徑長 20 cm、腫瘤體積 250 cm³ 皆為自訂的示範規則，非臨床標準。真實的肝癌試驗通常以 RECIST 1.1 / mRECIST 的可測量病灶與 BCLC 分期來定義腫瘤負荷。
 - **未涵蓋的臨床細節**：未處理檢驗日期與篩選期、抗凝血劑對 INR 的影響、輸注白蛋白後的數值、以藥物控制的腹水或肝性腦病變等情況。
 - **EMR 資料品質**：系統以 EMR 為核對基準，若 EMR 本身有誤，核對結果也會跟著錯。
-- **LLM 串接**：`SKILL.md` 描述的是讓 LLM 從病歷文字抽取數值、再交給本系統核對的設計構想，本 repo 目前未實作 LLM 串接。
+- **LLM 串接**：本系統本身不含 LLM。`SKILL.md` 描述讓 LLM 從病歷文字抽取數值、再交給本系統核對的設計構想；`llm_eval/` 以 30 份模擬病歷初步評估了這個流程的抽取正確率與攔截情形（結果見 `llm_eval/README.md`），但尚未整合成自動化流程。
 
 ---
 

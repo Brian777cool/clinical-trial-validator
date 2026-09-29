@@ -1,0 +1,31 @@
+﻿patient_id,tier,錯誤欄位數,validator 判定,錯誤明細
+P-3001,A,0,ELIGIBLE,
+P-3002,A,1,Source data mismatch,albumin: 答案 3.8 / 抽取 0.38
+P-3003,A,1,Source data mismatch,albumin: 答案 3.6 / 抽取 0.36
+P-3004,A,1,Source data mismatch,albumin: 答案 3.2 / 抽取 0.32
+P-3005,A,1,Source data mismatch,albumin: 答案 4.3 / 抽取 0.4
+P-3006,A,1,Source data mismatch,albumin: 答案 2.6 / 抽取 0.26
+P-3007,A,0,Not eligible,
+P-3008,A,1,Source data mismatch,albumin: 答案 3.7 / 抽取 0.37
+P-3009,A,1,Source data mismatch,albumin: 答案 4.0 / 抽取 0.4
+P-3010,A,1,Source data mismatch,albumin: 答案 3.4 / 抽取 0.34
+P-3011,B,1,Source data mismatch,albumin: 答案 4.0 / 抽取 0.4
+P-3012,B,0,ELIGIBLE,
+P-3013,B,2,Source data mismatch,bilirubin: 答案 0.9 / 抽取 0.5；albumin: 答案 4.2 / 抽取 0.4
+P-3014,B,1,Source data mismatch,albumin: 答案 3.1 / 抽取 0.31
+P-3015,B,4,Missing required field,albumin: 答案 4.1 / 抽取 0.41；tumor_width_cm: 答案 2.9 / 抽取 2.2；tumor_height_cm: 答案 2.2 / 抽取 2.9；encephalopathy: 答案 none / 抽取 MISSING
+P-3016,B,1,Source data mismatch,albumin: 答案 3.8 / 抽取 0.38
+P-3017,B,1,Source data mismatch,albumin: 答案 2.9 / 抽取 0.29
+P-3018,B,2,Source data mismatch,bilirubin: 答案 0.8 / 抽取 0.5；albumin: 答案 4.4 / 抽取 0.4
+P-3019,B,1,Source data mismatch,albumin: 答案 3.6 / 抽取 0.4
+P-3020,B,2,Source data mismatch,bilirubin: 答案 1.9 / 抽取 1.1；albumin: 答案 3.3 / 抽取 0.3
+P-3021,B,1,Source data mismatch,albumin: 答案 4.2 / 抽取 0.42
+P-3022,B,1,Source data mismatch,albumin: 答案 3.9 / 抽取 0.39
+P-3023,C,1,Missing required field,albumin: 答案 4.0 / 抽取 0.4
+P-3024,C,1,Missing required field,albumin: 答案 3.9 / 抽取 0.39
+P-3025,C,1,Missing required field,albumin: 答案 4.0 / 抽取 0.4
+P-3026,C,0,ELIGIBLE,
+P-3027,C,1,Source data mismatch,albumin: 答案 3.9 / 抽取 0.39
+P-3028,C,0,ELIGIBLE,
+P-3029,C,0,ELIGIBLE,
+P-3030,C,2,Source data mismatch,bilirubin: 答案 1.2 / 抽取 0.7；albumin: 答案 3.7 / 抽取 0.4

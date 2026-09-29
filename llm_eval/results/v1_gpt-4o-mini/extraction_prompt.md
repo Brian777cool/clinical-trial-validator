@@ -5,10 +5,7 @@
 規則：
 1. 只抽取病歷中明確記載的數值，不得推估或補值；病歷沒有記載的欄位請填 "MISSING"。
 2. 有多次檢驗時，取最新一次的數值。
-3. 單位：數值已經是目標單位時，請原樣照抄，不要再換算；只有病歷明確寫出其他單位時才換算。
-   - platelet_count 以 /µL 表示：寫成 x10^3/µL、×10³/µL、K 或 k 時乘以 1000（例如 85 x10^3/µL → 85000）；已經是 /µL 的完整數字（例如 132,000 /µL）直接照抄。
-   - bilirubin 以 mg/dL 表示：只有寫明 µmol/L 時才除以 17.1 並取到小數點後一位；寫 mg/dL 或未寫單位（例如 T-bil 0.8、TB 1.2）時直接照抄。
-   - albumin 以 g/dL 表示：只有寫明 g/L 時才除以 10；寫 g/dL 或未寫單位（例如 Alb 3.7）時直接照抄。
+3. 單位換算：platelet_count 以 /µL 表示（例如 85 x10^3/µL → 85000）；bilirubin 以 mg/dL 表示（µmol/L ÷ 17.1，取到小數點後一位）；albumin 以 g/dL 表示（g/L ÷ 10，取到小數點後一位）。
 4. 腫瘤：若有多顆，取最大病灶；tumor_length_cm＝最長軸向徑、tumor_width_cm＝與之垂直的軸向徑、tumor_height_cm＝頭尾徑。
 5. ascites 只能是 "none"、"mild"、"moderate"、"severe"、"MISSING"：只在影像上看到或記載為少量 → mild；理學檢查可察覺（shifting dullness、腹部膨隆）→ moderate；大量、腹部緊繃或需要放腹水 → severe。
 6. encephalopathy 只能是 "none"、"grade 1"、"grade 2"、"grade 3"、"grade 4"、"MISSING"，依 West Haven 分級：注意力不集中、計算變慢 → grade 1；對時間定向感異常、行為不當、撲翼樣震顫 → grade 2；嗜睡但可喚醒、對地點定向感異常、明顯混亂 → grade 3；昏迷 → grade 4。病歷未記載神智狀態時填 "MISSING"。
